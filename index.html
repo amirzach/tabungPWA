@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4c5760">
+  <meta name="description" content="Track your daily savings with this simple app">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Savings Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0ff;
+    }
+    
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+    }
+ 
+    /* Date selector styles */
+    .date-selector {
+      margin-bottom: 20px;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: left;
+      background-color: white;
+      position: relative;
+    }
+    
+    .date-selector::after {
+      content: "▼";
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+   
+    /* Savings display styles */
+    .savings-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .savings-amount {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+    
+    .button {
+      background-color: #4c5760;
+      color: white;
+      border: none;
+      padding: 10px 0;
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .button:hover {
+      background-color: #3a444c;
+    }
+
+    /* Offline notification */
+    .offline-notification {
+      display: none;
+      background-color: #ffcc00;
+      color: #333;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="offline-notification" id="offline-msg">You're offline. Data will be saved locally.</div>
+    <div class="date-selector">Select Date</div>
+    
+    <div class="savings-title">TOTAL SAVINGS</div>
+    <div class="savings-amount" id="savings-display">RM0</div>
+    
+    <button class="button" id="add-btn">Add RM1</button>
+    <button class="button" id="reset-btn">Reset Savings</button>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let savings = localStorage.getItem('savings') ? parseInt(localStorage.getItem('savings')) : 0;
+      const savingsDisplay = document.getElementById('savings-display');
+      const addBtn = document.getElementById('add-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const dateSelector = document.querySelector('.date-selector');
+      const offlineMsg = document.getElementById('offline-msg');
+      
+      // Update savings display
+      function updateSavings() {
+        savingsDisplay.textContent = `RM${savings}`;
+        localStorage.setItem('savings', savings);
+      }
+      
+      // Initialize display
+      updateSavings();
+      
+      // Add RM1 to savings
+      addBtn.addEventListener('click', function() {
+        savings += 1;
+        updateSavings();
+      });
+      
+      // Reset savings to 0
+      resetBtn.addEventListener('click', function() {
+        savings = 0;
+        updateSavings();
+      });
+      
+      // Date selector functionality (simplified)
+      dateSelector.addEventListener('click', function() {
+        alert('Date selector clicked! In a real app, this would open a date picker.');
+      });
+      
+      // Check for online/offline status
+      window.addEventListener('online', function() {
+        offlineMsg.style.display = 'none';
+      });
+      
+      window.addEventListener('offline', function() {
+        offlineMsg.style.display = 'block';
+      });
+      
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(function(error) {
+            console.log('Service Worker registration failed:', error);
+          });
+      }
+    });
+  </script>
+</body>
+</html>

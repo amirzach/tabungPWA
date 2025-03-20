@@ -1,0 +1,23 @@
+{
+  "name": "Savings Tracker",
+  "short_name": "Tabung",
+  "description": "Track your daily savings",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f0f0ff",
+  "theme_color": "#4c5760",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

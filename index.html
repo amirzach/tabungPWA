@@ -77,42 +77,143 @@
       color: var(--primary-color);
     }
     
-    /* Date selector styles */
-    .date-container {
-      margin-bottom: 25px;
-    }
-
-    .date-label {
-      font-size: 14px;
-      color: var(--text-light);
-      margin-bottom: 8px;
-      text-align: left;
-      display: block;
-    }
-
-    .date-selector {
+    /* Date picker styles */
+    .date-picker-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      text-align: left;
-      background-color: white;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-picker-content {
+      background-color: var(--card-color);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 25px;
+      width: 320px;
+      max-width: 90%;
       position: relative;
-      font-size: 14px;
+    }
+
+    .date-picker-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 20px;
       cursor: pointer;
+      color: var(--text-light);
+    }
+
+    .date-picker-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    
-    .date-selector:hover {
-      border-color: var(--primary-color);
+      margin-bottom: 20px;
     }
 
-    .date-selector:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(58, 110, 165, 0.2);
+    .date-nav-btn {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 50%;
+    }
+
+    .date-nav-btn:hover {
+      background-color: rgba(58, 110, 165, 0.1);
+    }
+
+    .month-year-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .weekday {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 0;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+
+    .day:hover {
+      background-color: rgba(58, 110, 165, 0.1);
+    }
+
+    .day.empty {
+      cursor: default;
+    }
+
+    .day.today {
+      background-color: rgba(58, 110, 165, 0.1);
+      font-weight: 600;
+    }
+
+    .day.selected {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .day.selected:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .today-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .today-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
+    body.dark-mode .date-picker-content {
+      background-color: var(--card-color);
+    }
+
+    body.dark-mode .day.today {
+      background-color: rgba(58, 110, 165, 0.2);
     }
    
     /* Savings display styles */
@@ -456,12 +557,13 @@
   <!-- JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize variables
+      // Existing variables
       let savings = localStorage.getItem('savings') ? parseFloat(localStorage.getItem('savings')) : 0;
       let streak = localStorage.getItem('streak') ? parseInt(localStorage.getItem('streak')) : 0;
       let lastSaved = localStorage.getItem('lastSaved') || null;
       let history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
       let darkMode = localStorage.getItem('darkMode') === 'true';
+      let currentDate = new Date();
       
       // Get DOM elements
       const savingsDisplay = document.getElementById('savings-display');
@@ -489,7 +591,7 @@
       updateSavings();
       updateStreak();
       updateHistory();
-      setCurrentDate();
+      setCurrentDate(currentDate);
       
       // Update savings display
       function updateSavings() {
@@ -532,9 +634,8 @@
       
       // Add to history
       function addToHistory(amount) {
-        const now = new Date();
         const historyItem = {
-          date: now.toISOString(),
+          date: currentDate.toISOString(),
           amount: amount,
           balance: savings
         };
@@ -579,11 +680,11 @@
         });
       }
       
-      // Set current date
-      function setCurrentDate() {
-        const now = new Date();
+      // Set current date display
+      function setCurrentDate(date) {
+        currentDate = date;
         const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-        selectedDate.textContent = now.toLocaleDateString('en-US', options);
+        selectedDate.textContent = date.toLocaleDateString('en-US', options);
       }
       
       // Show toast notification
@@ -649,11 +750,169 @@
         }
       });
       
-      // Date selector functionality
-      dateSelector.addEventListener('click', function() {
-        // In a real app, this would open a date picker
-        showToast('Calendar feature coming soon!');
-      });
+      // Create date picker modal
+      function createDatePicker() {
+        // Create the date picker modal
+        const modal = document.createElement('div');
+        modal.id = 'date-picker-modal';
+        modal.className = 'date-picker-modal';
+        
+        const modalContent = document.createElement('div');
+        modalContent.className = 'date-picker-content';
+        
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'date-picker-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.onclick = closeDatePicker;
+        
+        const header = document.createElement('div');
+        header.className = 'date-picker-header';
+        
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'date-nav-btn';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.onclick = () => navigateMonth(-1);
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'date-nav-btn';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.onclick = () => navigateMonth(1);
+        
+        const monthYearDisplay = document.createElement('div');
+        monthYearDisplay.className = 'month-year-display';
+        monthYearDisplay.id = 'month-year-display';
+        
+        header.appendChild(prevBtn);
+        header.appendChild(monthYearDisplay);
+        header.appendChild(nextBtn);
+        
+        const calendar = document.createElement('div');
+        calendar.className = 'calendar';
+        calendar.id = 'calendar';
+        
+        // Today button
+        const todayBtn = document.createElement('button');
+        todayBtn.className = 'today-btn';
+        todayBtn.textContent = 'Today';
+        todayBtn.onclick = () => {
+          const today = new Date();
+          setCurrentDate(today);
+          closeDatePicker();
+        };
+        
+        modalContent.appendChild(closeBtn);
+        modalContent.appendChild(header);
+        modalContent.appendChild(calendar);
+        modalContent.appendChild(todayBtn);
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        return modal;
+      }
+      
+      let datePicker = null;
+      let currentCalendarDate = new Date();
+      
+      // Open date picker
+      function openDatePicker() {
+        if (!datePicker) {
+          datePicker = createDatePicker();
+        }
+        
+        datePicker.style.display = 'block';
+        renderCalendar(currentCalendarDate);
+      }
+      
+      // Close date picker
+      function closeDatePicker() {
+        if (datePicker) {
+          datePicker.style.display = 'none';
+        }
+      }
+      
+      // Navigate month (prev/next)
+      function navigateMonth(direction) {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+        renderCalendar(currentCalendarDate);
+      }
+      
+      // Render calendar
+      function renderCalendar(date) {
+        const monthYearDisplay = document.getElementById('month-year-display');
+        const calendar = document.getElementById('calendar');
+        
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        
+        // Set month and year in header
+        monthYearDisplay.textContent = `${new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+        
+        // Clear previous calendar
+        calendar.innerHTML = '';
+        
+        // Create weekday headers
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const weekdaysRow = document.createElement('div');
+        weekdaysRow.className = 'weekdays';
+        
+        weekdays.forEach(day => {
+          const dayElem = document.createElement('div');
+          dayElem.className = 'weekday';
+          dayElem.textContent = day;
+          weekdaysRow.appendChild(dayElem);
+        });
+        
+        calendar.appendChild(weekdaysRow);
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Create days grid
+        const daysGrid = document.createElement('div');
+        daysGrid.className = 'days-grid';
+        
+        // Add empty cells for days before the first day of month
+        for (let i = 0; i < firstDay; i++) {
+          const emptyDay = document.createElement('div');
+          emptyDay.className = 'day empty';
+          daysGrid.appendChild(emptyDay);
+        }
+        
+        // Add days of month
+        for (let i = 1; i <= daysInMonth; i++) {
+          const dayElem = document.createElement('div');
+          dayElem.className = 'day';
+          dayElem.textContent = i;
+          
+          // Check if this day is today
+          const today = new Date();
+          if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            dayElem.classList.add('today');
+          }
+          
+          // Check if this day is selected
+          const selectedDay = currentDate;
+          if (i === selectedDay.getDate() && month === selectedDay.getMonth() && year === selectedDay.getFullYear()) {
+            dayElem.classList.add('selected');
+          }
+          
+          // Add click event
+          dayElem.addEventListener('click', () => {
+            const selectedDate = new Date(year, month, i);
+            setCurrentDate(selectedDate);
+            closeDatePicker();
+          });
+          
+          daysGrid.appendChild(dayElem);
+        }
+        
+        calendar.appendChild(daysGrid);
+      }
+      
+      // Date selector click event
+      dateSelector.addEventListener('click', openDatePicker);
       
       // Dark mode toggle
       darkModeToggle.addEventListener('click', function() {

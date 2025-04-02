@@ -254,6 +254,33 @@
       color: var(--accent-color);
     }
     
+    .subtract-button {
+      background-color: #f44336;
+    }
+    
+    .subtract-button:hover {
+      background-color: #d32f2f;
+    }
+    
+    .subtract-button.secondary-button {
+      background-color: transparent;
+      color: #f44336;
+      border: 1px solid #f44336;
+    }
+    
+    .subtract-button.secondary-button:hover {
+      background-color: rgba(244, 67, 54, 0.1);
+    }
+    
+    #subtract-custom-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    #subtract-custom-btn:hover {
+      background-color: #d32f2f;
+    }
+
     .buttons-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -535,6 +562,20 @@
       <button id="add-custom-btn"><i class="fas fa-plus"></i></button>
     </div>
 
+    <div class="buttons-container">
+      <button class="button subtract-button" id="subtract-rm1-btn">
+        <i class="fas fa-minus"></i> Subtract RM1
+      </button>
+      <button class="button secondary-button subtract-button" id="subtract-rm5-btn">
+        <i class="fas fa-minus"></i> Subtract RM5
+      </button>
+    </div>
+    
+    <div class="custom-amount">
+      <input type="number" id="custom-subtract-amount" placeholder="Custom amount" min="1">
+      <button id="subtract-custom-btn"><i class="fas fa-minus"></i></button>
+    </div>
+
     <button class="button secondary-button" id="reset-btn">
       <i class="fas fa-redo-alt"></i> Reset Savings
     </button>
@@ -734,6 +775,53 @@
         addToHistory(amount);
         showToast(`RM${amount.toFixed(2)} added to your savings!`);
       }
+
+      // Subtract RM1 from savings
+      const subtractRm1Btn = document.getElementById('subtract-rm1-btn');
+      subtractRm1Btn.addEventListener('click', function() {
+        subtractSavings(1);
+      });
+
+      // Subtract RM5 from savings
+      const subtractRm5Btn = document.getElementById('subtract-rm5-btn');
+      subtractRm5Btn.addEventListener('click', function() {
+        subtractSavings(5);
+      });
+
+      // Subtract custom amount
+      const subtractCustomBtn = document.getElementById('subtract-custom-btn');
+      const customSubtractAmountInput = document.getElementById('custom-subtract-amount');
+
+      subtractCustomBtn.addEventListener('click', function() {
+        const amount = parseFloat(customSubtractAmountInput.value);
+        if (isNaN(amount) || amount <= 0) {
+          showToast('Please enter a valid amount', true);
+          return;
+        }
+        
+        subtractSavings(amount);
+        customSubtractAmountInput.value = '';
+      });
+
+      // Enter key for custom subtract amount
+      customSubtractAmountInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          subtractCustomBtn.click();
+        }
+      });
+
+      // Common function to subtract savings
+      function subtractSavings(amount) {
+        if (savings < amount) {
+          showToast(`Insufficient savings to subtract RM${amount.toFixed(2)}`, true);
+          return;
+        }
+        
+        savings -= amount;
+        updateSavings();
+        addToHistory(-amount);
+        showToast(`RM${amount.toFixed(2)} subtracted from your savings!`);
+      }      
       
       // Reset savings to 0
       resetBtn.addEventListener('click', function() {

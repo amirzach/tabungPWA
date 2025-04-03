@@ -297,7 +297,6 @@
       border-radius: 8px;
       overflow: hidden;
       border: 1px solid #e0e0e0;
-      gap:8px;
     }
     
     body.dark-mode .custom-amount {
@@ -335,7 +334,7 @@
       display: flex;
       min-width: 88px;
       flex-direction: row;
-      gap: 10px;      
+      gap: 4px;      
     }
     
     .action-btn {
@@ -346,6 +345,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      border-radius: 50%;
     }
     
     .action-btn.add {
@@ -470,15 +470,6 @@
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 2px rgba(58, 110, 165, 0.2);
-    }
-
-    .custom-amount button {
-      padding: 12px 15px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
     }
 
     .settings-button {
@@ -832,7 +823,7 @@
         const buttonWidth = document.querySelector('#add-custom-btn').offsetWidth;
         
         // Apply consistent sizing
-        document.querySelectorAll('.custom-amount button').forEach(btn => {
+        document.querySelectorAll('.action-btn').forEach(btn => {
           btn.style.height = `${inputHeight}px`;
           btn.style.width = `${buttonWidth}px`;
         });

@@ -131,6 +131,32 @@
       background-color: rgba(58, 110, 165, 0.1);
     }
 
+    .date-container {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    
+    .date-label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .date-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background-color: rgba(240, 240, 255, 0.5);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .date-selector i {
+      color: var(--primary-color);
+    }    
+
     .month-year-display {
       font-size: 18px;
       font-weight: 600;
@@ -206,6 +232,12 @@
 
     .today-btn:hover {
       background-color: var(--secondary-color);
+    }
+
+    #reset-btn {
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 20px;
     }
 
     body.dark-mode .date-picker-content {
@@ -371,6 +403,23 @@
       text-align: left;
     }
 
+    .history-list {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-color) transparent;
+    }
+    
+    .history-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .history-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .history-list::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 6px;
+    }    
     .section-title {
       font-size: 16px;
       font-weight: 600;
@@ -488,6 +537,24 @@
       --text-color: #e6e6e6;
       --text-light: #a0a0a0;
     }
+
+    body.dark-mode .history-list {
+      background-color: rgba(30, 30, 60, 0.2);
+    }
+
+    body.dark-mode .history-item {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-mode .date-selector {
+      background-color: rgba(30, 30, 60, 0.2);
+    }
+
+    body.dark-mode input {
+      background-color: rgba(30, 30, 60, 0.2);
+      color: var(--text-color);
+      border-color: rgba(255, 255, 255, 0.1);
+    }    
 
     /* Responsive adjustments */
     @media (max-width: 400px) {
@@ -633,7 +700,69 @@
       updateStreak();
       updateHistory();
       setCurrentDate(currentDate);
+      standardizeFormElements();
+      improveResponsiveness();
+      addConsistentAnimations();
+
+      function alignUIElements() {
+        // Get dimensions of common elements
+        const inputHeight = document.querySelector('.custom-amount input').offsetHeight;
+        const buttonWidth = document.querySelector('#add-custom-btn').offsetWidth;
+        
+        // Apply consistent sizing
+        document.querySelectorAll('.custom-amount button').forEach(btn => {
+          btn.style.height = `${inputHeight}px`;
+          btn.style.width = `${buttonWidth}px`;
+        });
+        
+        // Align text and icons in buttons
+        document.querySelectorAll('.button i').forEach(icon => {
+          icon.style.marginRight = '8px';
+          icon.style.fontSize = '14px';
+        });
+      }
+
+      window.addEventListener('load', alignUIElements);
+      window.addEventListener('resize', alignUIElements);
       
+      function improveResponsiveness() {
+        const container = document.querySelector('.container');
+        
+        function adjustLayout() {
+          if (window.innerWidth < 340) {
+            container.style.padding = '15px';
+            document.querySelectorAll('.button').forEach(btn => {
+              btn.style.padding = '12px 0';
+            });
+          } else {
+            container.style.padding = '30px';
+            document.querySelectorAll('.button').forEach(btn => {
+              btn.style.padding = '14px 0';
+            });
+          }
+        }
+        
+        // Run on load and resize
+        adjustLayout();
+        window.addEventListener('resize', adjustLayout);
+      }
+
+      function standardizeFormElements() {
+        // Get all input fields
+        const inputs = document.querySelectorAll('input[type="number"]');
+        
+        // Apply consistent styling
+        inputs.forEach(input => {
+          input.style.height = '44px'; // Match button height
+        });
+        
+        // Ensure buttons have consistent height
+        const buttons = document.querySelectorAll('.button, .custom-amount button');
+        buttons.forEach(button => {
+          button.style.height = '44px';
+        });
+      }
+
       // Update savings display
       function updateSavings() {
         savingsDisplay.textContent = `RM${savings.toFixed(2)}`;
@@ -719,6 +848,28 @@
           
           historyList.appendChild(historyItem);
         });
+      }
+ 
+      function addConsistentAnimations() {
+        // Elements that should have hover effects
+        const hoverElements = [
+          '.date-selector',
+          '.custom-amount input',
+          '.history-item'
+        ];
+        
+        // Add hover effect styles
+        const style = document.createElement('style');
+        style.textContent = `
+          ${hoverElements.join(', ')} {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+          }
+          ${hoverElements.join(':hover, ')}:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+        `;
+        document.head.appendChild(style);
       }
       
       // Set current date display

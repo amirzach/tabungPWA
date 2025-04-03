@@ -285,7 +285,107 @@
       margin-right: 5px;
       color: var(--accent-color);
     }
+
+    .action-container {
+      margin-bottom: 20px;
+      display: inline-block;
+    }
     
+    .custom-amount {
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      gap:8px;
+    }
+    
+    body.dark-mode .custom-amount {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .currency-label {
+      padding: 0 12px;
+      background-color: rgba(240, 240, 255, 0.5);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+    
+    body.dark-mode .currency-label {
+      background-color: rgba(30, 30, 60, 0.2);
+      color: var(--text-color);
+    }
+    
+    #amount-input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      font-size: 14px;
+      text-align: left;
+      height: 44px;
+    }
+    
+    #amount-input:focus {
+      outline: none;
+    }
+    
+    .action-buttons {
+      display: flex;
+      min-width: 88px;
+      flex-direction: row;
+      gap: 10px;      
+    }
+    
+    .action-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .action-btn.add {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .action-btn.subtract {
+      background-color: var(--error-color);
+      color: white;
+    }
+    
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    
+    .chip-button {
+      background-color: rgba(58, 110, 165, 0.1);
+      border: none;
+      border-radius: 16px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: all 0.2s ease;
+    }
+    
+    .chip-button:hover {
+      background-color: rgba(58, 110, 165, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    body.dark-mode .chip-button {
+      background-color: rgba(58, 110, 165, 0.15);
+    }    
+
     .subtract-button {
       background-color: #f44336;
     }
@@ -355,12 +455,6 @@
 
     .secondary-button:hover {
       background-color: rgba(58, 110, 165, 0.1);
-    }
-
-    .custom-amount {
-      display: flex;
-      margin-bottom: 20px;
-      gap: 10px;
     }
 
     .custom-amount input {
@@ -615,34 +709,24 @@
       <div class="streak-info"><i class="fas fa-fire"></i> <span id="streak-count">0 day streak</span></div>
     </div>
     
-    <div class="buttons-container">
-      <button class="button" id="add-rm1-btn">
-        <i class="fas fa-plus"></i> Add RM1
-      </button>
-      <button class="button secondary-button" id="add-rm5-btn">
-        <i class="fas fa-plus"></i> Add RM5
-      </button>
-    </div>
-
-    <div class="custom-amount">
-      <input type="number" id="custom-amount" placeholder="Custom amount" min="1">
-      <button id="add-custom-btn"><i class="fas fa-plus"></i></button>
-    </div>
-
-    <div class="buttons-container">
-      <button class="button subtract-button" id="subtract-rm1-btn">
-        <i class="fas fa-minus"></i> Subtract RM1
-      </button>
-      <button class="button secondary-button subtract-button" id="subtract-rm5-btn">
-        <i class="fas fa-minus"></i> Subtract RM5
-      </button>
+    <div class="action-container">
+      <div class="custom-amount">
+        <span class="currency-label">RM</span>
+        <input type="number" id="amount-input" placeholder="Enter amount" min="0">
+        <div class="action-buttons">
+          <button id="add-btn" class="action-btn add"><i class="fas fa-plus"></i></button>
+          <button id="subtract-btn" class="action-btn subtract"><i class="fas fa-minus"></i></button>
+        </div>
+      </div>
     </div>
     
-    <div class="custom-amount">
-      <input type="number" id="custom-subtract-amount" placeholder="Custom amount" min="1">
-      <button id="subtract-custom-btn"><i class="fas fa-minus"></i></button>
+    <div class="quick-actions">
+      <button class="chip-button" data-value="1">RM1</button>
+      <button class="chip-button" data-value="5">RM5</button>
+      <button class="chip-button" data-value="10">RM10</button>
+      <button class="chip-button" data-value="50">RM50</button>
     </div>
-
+    
     <button class="button secondary-button" id="reset-btn">
       <i class="fas fa-redo-alt"></i> Reset Savings
     </button>
@@ -676,11 +760,10 @@
       // Get DOM elements
       const savingsDisplay = document.getElementById('savings-display');
       const streakCount = document.getElementById('streak-count');
-      const addRm1Btn = document.getElementById('add-rm1-btn');
-      const addRm5Btn = document.getElementById('add-rm5-btn');
-      const addCustomBtn = document.getElementById('add-custom-btn');
-      const customAmountInput = document.getElementById('custom-amount');
       const resetBtn = document.getElementById('reset-btn');
+      const amountInput = document.getElementById('amount-input');
+      const addBtn = document.getElementById('add-btn');
+      const subtractBtn = document.getElementById('subtract-btn');
       const dateSelector = document.getElementById('date-selector');
       const selectedDate = document.getElementById('selected-date');
       const historyList = document.getElementById('history-list');
@@ -703,6 +786,45 @@
       standardizeFormElements();
       improveResponsiveness();
       addConsistentAnimations();
+
+      // Quick action buttons
+      document.querySelectorAll('.chip-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const value = parseFloat(this.dataset.value);
+          amountInput.value = value;
+        });
+      });
+
+      // Add button handler
+      addBtn.addEventListener('click', function() {
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount) || amount <= 0) {
+          showToast('Please enter a valid amount', true);
+          return;
+        }
+        
+        addSavings(amount);
+        amountInput.value = '';
+      });
+
+      // Subtract button handler
+      subtractBtn.addEventListener('click', function() {
+        const amount = parseFloat(amountInput.value);
+        if (isNaN(amount) || amount <= 0) {
+          showToast('Please enter a valid amount', true);
+          return;
+        }
+        
+        subtractSavings(amount);
+        amountInput.value = '';
+      });
+
+      // Enter key for amount input
+      amountInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          addBtn.click();
+        }
+      });      
 
       function alignUIElements() {
         // Get dimensions of common elements
@@ -889,34 +1011,6 @@
         }, 3000);
       }
       
-      // Add RM1 to savings
-      addRm1Btn.addEventListener('click', function() {
-        addSavings(1);
-      });
-      
-      // Add RM5 to savings
-      addRm5Btn.addEventListener('click', function() {
-        addSavings(5);
-      });
-      
-      // Add custom amount
-      addCustomBtn.addEventListener('click', function() {
-        const amount = parseFloat(customAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-          showToast('Please enter a valid amount', true);
-          return;
-        }
-        
-        addSavings(amount);
-        customAmountInput.value = '';
-      });
-      
-      // Enter key for custom amount
-      customAmountInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          addCustomBtn.click();
-        }
-      });
       
       // Common function to add savings
       function addSavings(amount) {
@@ -926,40 +1020,6 @@
         addToHistory(amount);
         showToast(`RM${amount.toFixed(2)} added to your savings!`);
       }
-
-      // Subtract RM1 from savings
-      const subtractRm1Btn = document.getElementById('subtract-rm1-btn');
-      subtractRm1Btn.addEventListener('click', function() {
-        subtractSavings(1);
-      });
-
-      // Subtract RM5 from savings
-      const subtractRm5Btn = document.getElementById('subtract-rm5-btn');
-      subtractRm5Btn.addEventListener('click', function() {
-        subtractSavings(5);
-      });
-
-      // Subtract custom amount
-      const subtractCustomBtn = document.getElementById('subtract-custom-btn');
-      const customSubtractAmountInput = document.getElementById('custom-subtract-amount');
-
-      subtractCustomBtn.addEventListener('click', function() {
-        const amount = parseFloat(customSubtractAmountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-          showToast('Please enter a valid amount', true);
-          return;
-        }
-        
-        subtractSavings(amount);
-        customSubtractAmountInput.value = '';
-      });
-
-      // Enter key for custom subtract amount
-      customSubtractAmountInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          subtractCustomBtn.click();
-        }
-      });
 
       // Common function to subtract savings
       function subtractSavings(amount) {
